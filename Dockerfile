@@ -36,9 +36,7 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Build-time download from Hugging Face if HF_TOKEN is provided.
 # Pass via: docker-compose build --build-arg HF_TOKEN=... or docker build --build-arg HF_TOKEN=...
-RUN if [ -n "$HF_TOKEN" ]; then \
-    echo "Downloading models from $HF_MODEL_REPO at build-time"; \
-    python - <<'PY' || true
+RUN test -n "$HF_TOKEN" && python - <<'PY' || echo "No HF_TOKEN provided; skipping build-time download"
 import os,sys
 from huggingface_hub import snapshot_download
 token = os.environ.get('HF_TOKEN')
@@ -55,7 +53,6 @@ if token:
 else:
     print('No HF_TOKEN; skipping build-time download')
 PY
-fi
 
 EXPOSE 7860
 
