@@ -9,8 +9,43 @@ set -e
 missing=0
 echo "Checking required model files..."
 if [ ! -d "$MODEL_PATH" ]; then
-  echo "ERROR: LLaMA model not found at $MODEL_PATH"
-  missing=1
+  echo "LLaMA model not found at $MODEL_PATH"
+  # Try runtime download from Hugging Face if HF_TOKEN and HF_MODEL_REPO provided
+  HF_MODEL_REPO=${HF_MODEL_REPO:-doughnut23/emollama-models}
+  HF_REPO_TYPE=${HF_REPO_TYPE:-model}
+  if [ -n "$HF_TOKEN" ]; then
+    echo "HF_TOKEN provided; attempting to download $HF_MODEL_REPO (type=$HF_REPO_TYPE) into /app/checkpoints"
+    # Ensure parent checkpoints dir exists
+    mkdir -p /app/checkpoints
+    if [ -w /app/checkpoints ]; then
+      echo "Downloading into /app/checkpoints (this may take a while)..."
+      python - <<PY || true
+from huggingface_hub import snapshot_download
+import os, sys
+repo = os.environ.get('HF_MODEL_REPO', 'doughnut23/emollama-models')
+repo_type = os.environ.get('HF_REPO_TYPE', 'model')
+token = os.environ.get('HF_TOKEN')
+try:
+    snapshot_download(repo_id=repo, repo_type=repo_type, local_dir='/app/checkpoints', use_auth_token=token)
+    print('Snapshot download finished')
+except Exception as e:
+    print('Snapshot download failed:', e)
+    sys.exit(1)
+PY
+      if [ -d "$MODEL_PATH" ]; then
+        echo "Downloaded LLaMA model to $MODEL_PATH"
+      else
+        echo "Download completed but model path $MODEL_PATH still missing."
+        missing=1
+      fi
+    else
+      echo "Cannot write to /app/checkpoints. If you mounted ./checkpoints as read-only, remove the mount or make it writable to allow runtime download."
+      missing=1
+    fi
+  else
+    echo "No HF_TOKEN provided; cannot attempt download of $HF_DATASET_REPO."
+    missing=1
+  fi
 else
   echo "Found LLaMA model at $MODEL_PATH"
 fi

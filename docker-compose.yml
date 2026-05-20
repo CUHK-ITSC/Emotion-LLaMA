@@ -5,6 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        HF_TOKEN: ${HF_TOKEN:-}
+        HF_MODEL_REPO: ${HF_MODEL_REPO:-doughnut23/emollama-models}
+        HF_REPO_TYPE: ${HF_REPO_TYPE:-model}
     image: emotion-llama:latest
     container_name: emotion-llama-app
     
@@ -31,6 +35,9 @@ services:
       - MODEL_PATH=/app/checkpoints/Llama-2-7b-chat-hf
       - HUBERT_PATH=/app/checkpoints/transformer/chinese-hubert-large
       - CKPT_PATH=/app/checkpoints/save_checkpoint/Emoation_LLaMA.pth
+      - HF_TOKEN
+      - HF_MODEL_REPO=doughnut23/emollama-models
+      - HF_REPO_TYPE=model
     
     # GPU support
     deploy:

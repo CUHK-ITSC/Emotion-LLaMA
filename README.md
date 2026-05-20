@@ -1,5 +1,10 @@
 # Emotion-LLaMA: Multimodal Emotion Recognition and Reasoning with Instruction Tuning  
 
+
+## [Docker Setup](QUICKSTART.md)
+
+
+
 [<img alt="Open In Colab" class="!m-0" src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/drive/1YTSadgBRfn75wpgpor8_mYWcM6TUPF-i?usp=sharing)
 
 ## 📢 News
