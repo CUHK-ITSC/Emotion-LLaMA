@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Enable hf-transfer for faster HF Hub downloads
+export HF_HUB_ENABLE_HF_TRANSFER=1
+
 # Default paths (can be overridden via env vars)
 : ${MODEL_PATH:=/app/checkpoints/Llama-2-7b-chat-hf}
 : ${HUBERT_PATH:=/app/checkpoints/transformer/chinese-hubert-large}

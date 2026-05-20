@@ -33,6 +33,9 @@ COPY eval_configs/ ./eval_configs/
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Enable hf-transfer for faster HF Hub downloads
+ENV HF_HUB_ENABLE_HF_TRANSFER=1
+
 # Build-time download from Hugging Face if HF_TOKEN is provided.
 # Pass via: docker-compose build --build-arg HF_TOKEN=... or docker build --build-arg HF_TOKEN=...
 RUN test -n "$HF_TOKEN" && python - <<'PY' || echo "No HF_TOKEN provided; skipping build-time download"
