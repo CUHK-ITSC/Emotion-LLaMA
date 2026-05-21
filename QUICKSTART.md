@@ -9,6 +9,7 @@ Quick checklist (download/copy these before running):
 
 Why we keep these outside the image
 - These files are very large (tens of GB). Excluding them from the Docker build context makes image builds fast and prevents accidentally baking weights into the image. The repository's `.dockerignore` already excludes `checkpoints/` and similar folders.
+- The demo example videos under `examples/*.mp4` are included in the image because the app's default demo prompts point at those files.
 
 1) Prepare model files (required)
 
