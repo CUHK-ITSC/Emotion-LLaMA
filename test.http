@@ -1,0 +1,11 @@
+POST http://127.0.0.1:7889/api/predict/
+#curl -X POST "http://127.0.0.1:7889/api/predict/" \
+#  -H "Content-Type: application/json" \
+#  -d '{"data": ["<BASE64_IMAGE_OR_PATH>", "What emotions does this convey?"]}'
+#```
+{
+  "data": [
+    "examples/sample_00000167.mp4",
+    "What emotions does this convey?"
+  ]
+}
