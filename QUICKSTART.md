@@ -1,6 +1,6 @@
 # Quickstart — Docker deployment (concise)
 
-This quickstart shows the minimal steps to get the full Emotion‑LLaMA demo running in Docker while keeping large model files outside the build context.
+This quickstart shows the minimal steps to run the Emotion-LLaMA client demo (`app_EmotionLlamaClient.py`) in Docker while fetching the model files from Hugging Face during the image build.
 
 Quick checklist (download/copy these before running):
 - LLaMA weights: `checkpoints/Llama-2-7b-chat-hf/` (model shards + tokenizer + config)
@@ -36,16 +36,16 @@ DOCKER_BUILDKIT=1 docker build -t emotion-llama:latest .
 
 3) Choose how the container gets checkpoints
 
-Default option: use the model files baked into the image by the HF download step. This is the simplest path and does not require mounts.
+Default option: use the model files fetched from Hugging Face during the Docker build. This is the simplest path and does not require local model mounts.
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Local-mount option: if you want to use checkpoint files from your host machine instead, use the override file `docker-compose.local.yml`.
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.local.yml up --build
+docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 ```
 
 For the local-mount option, the expected host layout is:
@@ -59,21 +59,19 @@ Example `docker run` (adjust host paths):
 # single container
 docker run --gpus all \
   -v /full/path/to/Emotion-LLaMA/checkpoints:/app/checkpoints:ro \
-  -v /full/path/to/Emotion-LLaMA/transformer:/app/transformer:ro \
-  -p 7860:7860 -p 7889:7889 \
-  -e MODEL_PATH=/app/checkpoints/Llama-2-7b-chat-hf \
-  -e HUBERT_PATH=/app/checkpoints/transformer/chinese-hubert-large \
-  -e CKPT_PATH=/app/checkpoints/save_checkpoint/Emoation_LLaMA.pth \
+  -v /full/path/to/Emotion-LLaMA/transformer:/app/checkpoints/transformer:ro \
+  -v /full/path/to/Emotion-LLaMA/save_checkpoint:/app/checkpoints/save_checkpoint:ro \
+  -p 7889:7889 \
   emotion-llama:latest
 
-# or use docker-compose with the local-mount override:
-docker-compose -f docker-compose.yml -f docker-compose.local.yml up --build
+# or use docker compose with the local-mount override:
+docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 ```
 
 Notes:
-- The default compose file now assumes the image already contains the downloaded models.
+- The default compose file now starts `app_EmotionLlamaClient.py` and publishes port `7889`.
 - Use `docker-compose.local.yml` only when you want the host folders to override the image files.
-- `app.py` serves the main Gradio demo on port `7860`. `app_EmotionLlamaClient.py` runs an alternate client on port `7889`.
+- `app_EmotionLlamaClient.py` runs the client demo on port `7889`. The main `app.py` demo still exists, but it is no longer the default Docker entrypoint.
 
 4) Run locally without Docker (optional)
 
@@ -123,7 +121,7 @@ print(resp.json())
 ```
 
 Troubleshooting
-- If the container errors at start: confirm you mounted `checkpoints/` into `/app/checkpoints` and that `MODEL_PATH` points to a valid LLaMA folder. The entrypoint will print helpful instructions.
+- If the container errors at start: confirm the HF build step downloaded the checkpoints into `/app/checkpoints`, or use `docker-compose.local.yml` to mount your host `checkpoints/` tree there.
 - If model loading fails with missing shards, open `checkpoints/Llama-2-7b-chat-hf/pytorch_model.bin.index.json` and ensure the shard filenames listed there exist in the same folder.
 - For CUDA/driver issues: ensure your host NVIDIA driver supports CUDA 11.7 and that the NVIDIA Container Toolkit is installed.
 

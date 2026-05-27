@@ -56,7 +56,7 @@ else:
     print('No HF_TOKEN; skipping build-time download')
 PY
 
-EXPOSE 7860
+EXPOSE 7889
 
-# Start the application directly (no entrypoint script)
-CMD ["python", "app.py"]
+# Start the Emotion-LLaMA client demo directly.
+CMD ["python", "app_EmotionLlamaClient.py"]

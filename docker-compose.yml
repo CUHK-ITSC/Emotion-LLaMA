@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   emotion-llama:
     build:
@@ -11,41 +9,29 @@ services:
         HF_REPO_TYPE: ${HF_REPO_TYPE:-model}
     image: emotion-llama:latest
     container_name: emotion-llama-app
-    
+    command: ["python", "app_EmotionLlamaClient.py"]
+
     # Port mappings
     ports:
-      - "7860:7860"    # main app.py (Gradio)
-      - "7889:7889"    # optional: app_EmotionLlamaClient.py
-    
+      - "7889:7889"    # Emotion-LLaMA client demo (Gradio)
+
     # Volume mounts
     volumes:
-      # Persist fine-tuned weights and logs on the host (writable)
-      - ./save_checkpoint:/app/save_checkpoint
+      # Persist logs on the host (writable)
       - ./logs:/app/logs
-    
+
     # Environment variables
     environment:
-      - PORT=7860
       - CUDA_VISIBLE_DEVICES=0  # adjust to your GPU IDs if multiple GPUs
-      - MODEL_PATH=/app/checkpoints/Llama-2-7b-chat-hf
-      - HUBERT_PATH=/app/checkpoints/transformer/chinese-hubert-large
-      - CKPT_PATH=/app/checkpoints/save_checkpoint/Emoation_LLaMA.pth
       - HF_TOKEN
       - HF_MODEL_REPO=doughnut23/emollama-models
       - HF_REPO_TYPE=model
-    
-    # GPU support
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1          # number of GPUs (adjust if needed)
-              capabilities: [gpu]
-    
+
+    gpus: all
+
     # Restart policy
     restart: unless-stopped
-    
+
     # Resource limits (optional, adjust based on your system)
     # mem_limit: '32g'
     # cpus: '4'

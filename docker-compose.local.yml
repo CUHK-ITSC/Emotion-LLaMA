@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   emotion-llama:
     volumes:
